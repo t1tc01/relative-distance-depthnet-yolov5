@@ -8,7 +8,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from layers import disp_to_depth
-from utils import readlines
+from util import readlines
 from options import MonodepthOptions
 import datasets
 import networks

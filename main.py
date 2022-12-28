@@ -46,43 +46,6 @@ def depth_predict(image_path, encoder ,depth_decoder):
   
   original_width, original_height = image_path.shape[1], image_path.shape[0]
 
-  # #use GPU
-  # if torch.cuda.is_available():
-  #   device = torch.device("cuda")
-  # else:
-  #   device = torch.device("cpu")
-
-  # #
-  # download_model_if_doesnt_exist(model_name)
-  # model_path = os.path.join("models", model_name)
-  # print("-> Loading model from ", model_path)
-  # encoder_path = os.path.join(model_path, "encoder.pth")
-  # depth_decoder_path = os.path.join(model_path, "depth.pth")
-
-  # # LOADING PRETRAINED MODEL
-  # print("   Loading pretrained encoder")
-  # encoder = networks.ResnetEncoder(18, False)
-  # loaded_dict_enc = torch.load(encoder_path, map_location=device)
-
-  # # extract the height and width of image that this model was trained with
-  # feed_height = loaded_dict_enc['height']
-  # feed_width = loaded_dict_enc['width']
-  # filtered_dict_enc = {k: v for k, v in loaded_dict_enc.items() if k in encoder.state_dict()}
-  # encoder.load_state_dict(filtered_dict_enc)
-  # encoder.to(device)
-  # encoder.eval()
-
-  # print("   Loading pretrained decoder")
-  # depth_decoder = networks.DepthDecoder(
-  # num_ch_enc=encoder.num_ch_enc, scales=range(4))
-
-  # loaded_dict = torch.load(depth_decoder_path, map_location=device)
-  # depth_decoder.load_state_dict(loaded_dict)
-
-  # depth_decoder.to(device)
-  # depth_decoder.eval()
-
-  
   # PREDICTING ON EACH IMAGE IN TURN
   with torch.no_grad():
       
@@ -173,7 +136,7 @@ def drawing_output(frame, model, encoder, depth_decoder):
 
 
 if __name__ == '__main__':
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5s.pt')
+    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True) 
     model_name = "mono+stereo_640x192"
     
     #use GPU
@@ -217,6 +180,15 @@ if __name__ == '__main__':
     cap = cv.VideoCapture(0)
     pre_timeframe = 0
     new_timeframe = 0
+    
+    #runtest on video
+    # vid_path = os.path.join('assets','driving.mp4')
+    # cap = cv.VideoCapture(vid_path)
+    # frame_width = int(cap.get(3))
+    # frame_height = int(cap.get(4))
+    # out_path = os.path.join('assets','outpy.avi')
+    # out = cv.VideoWriter(out_path,cv.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+    
     while True:
         ret, frame = cap.read()
         if ret == False: 
@@ -224,23 +196,18 @@ if __name__ == '__main__':
 
         frame = drawing_output(frame, model, encoder, depth_decoder)
         
-        # result = model(frame)
-        # frame = np.squeeze(result.render())
-        
         new_timeframe = time.time()
         fps = 1/(new_timeframe- pre_timeframe)
         pre_timeframe = new_timeframe
         fps = int(fps)
         cv.putText(frame, str(fps), (8, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 0), 4)
         
-        
-        
+        #out.write(frame)
         cv.imshow("video",frame)
-        
         
         if cv.waitKey(1) == ord('q'):
             break
-    
+    #out.release()
     cap.release()
     cv.destroyAllWindows()
   

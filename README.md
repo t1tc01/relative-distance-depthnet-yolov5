@@ -1,4 +1,4 @@
-# absolute-distance-depthnet-yolov5
+# relative-distance-depthnet-yolov5
 
 First you need install essential packages:
 pip install -r requirements.txt
